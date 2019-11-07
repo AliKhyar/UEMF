@@ -17,6 +17,9 @@ void ajouter_personne(Personne list_pers[N+10]){
 	if(len_list-2>position){
 		printf("out of range");
 	}else{
+		for(i=len_list; i<=position; i--){
+			list_pers[i+1]=list_pers[i];
+		}
 		printf("Enter the name of the person at position %d \n", position);
 		scanf("%s", list_pers[len_list+1].nom);
 		printf("Enter his last name:\n");
@@ -24,9 +27,7 @@ void ajouter_personne(Personne list_pers[N+10]){
 		printf("Enter his age \n");
 		scanf("%d", &list_pers[len_list+1].age);
 		int i;
-		for(i=len_list; i<=position; i--){
-			list_pers[i+1]=list_pers[i];
-		}
+		
 		len_list= len_list +1;
 	}
 
