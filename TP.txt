@@ -1,0 +1,219 @@
+CREATE TABLE Activite(
+    N_activite INT NOT NULL AUTO_INCREMENT,
+    nom_activite VARCHAR(30),
+    prix_activite DECIMAL(10,2),
+    heure_activite TIME,
+    date_activite DATE,
+    PRIMARY KEY(N_activite)
+);
+
+CREATE TABLE Hotel(
+    N_hotel INT NOT NULL AUTO_INCREMENT,
+    nom_hotel VARCHAR(20),
+    nbre_etoiles INT DEFAULT 3,
+    prix_participation DECIMAL(10,2),
+    prix_supplementaire DECIMAL(10,2),
+    adresse_hotel VARCHAR(50),
+    PRIMARY KEY(N_hotel),
+    CONSTRAINT name_unicity UNIQUE (nom_hotel) 
+);
+
+CREATE TABLE Organisme_payeur(
+    N_organisme INT AUTO_INCREMENT,
+    nom_organisme VARCHAR(30),
+    adresse_organisme VARCHAR(50),
+    PRIMARY KEY(N_organisme)
+);
+
+CREATE TABLE Congressiste(
+    N_congressiste INT AUTO_INCREMENT,
+    N_hotel INT,
+    N_organisme INT,
+    nom_congressiste VARCHAR(20),
+    prenom_congressiste VARCHAR(20),
+    telephone VARCHAR(20),
+    date_inscription DATE,
+    adresse_congressiste VARCHAR(20),
+    PRIMARY KEY(N_congressiste),
+    FOREIGN KEY (N_hotel) REFERENCES Hotel(N_hotel),
+    FOREIGN KEY (N_organisme) REFERENCES Organisme_payeur(N_organisme)
+);
+
+CREATE TABLE Participation(
+    N_activite INT,
+    N_congressiste INT,
+    nbre_personne INT,
+    PRIMARY KEY(N_activite,N_congressiste),
+    FOREIGN KEY (N_activite) REFERENCES Activite(N_activite),
+    FOREIGN KEY (N_congressiste) REFERENCES Congressiste(N_congressiste)
+);
+
+
+///// insertions ///////
+
+INSERT INTO 
+    Activite(Nom_activite, date_activite,prix_activite,heure_activite)
+VALUES ('Excursion a Rhune','2008-06-05',20,'17:00:00'),
+        ('Visite St Jean de Luz','2008-06-05',3,'09:30:00'),
+        ('Concert Jazz','2008-06-06',15,'20:30:00'),
+        ('Tournoi Pelote basque','2008-06-07',12,'20:30:00');
+
+INSERT INTO 
+        Hotel(nom_hotel,adresse_hotel,nbre_etoiles,prix_participation,prix_supplementaire)
+VALUES ('Les Flots Bleus','Biarritz',3,55,35),
+        ('Beau Rivage','Biarritz',3,50,32),
+        ('Itsas-mendia','Bidart',2,25,15),
+        ('Continental','Anglet',3,40,25);
+
+INSERT INTO
+        Organisme_payeur(nom_organisme,adresse_organisme)
+VALUES ('IUT Limoges','Limoges'),
+        ('Microsoft','Bordeaux'),
+        ('Lycee Valadon','Limoges'),
+        ('Valeo','Paris');
+
+
+INSERT INTO 
+        Congressiste(N_congressiste,N_hotel,N_organisme,nom_congressiste,prenom_congressiste,adresse_congressiste,date_inscription)
+VALUES (1,1,3,'Millet','Alain','St Junien','2008-03-01'),
+        (2,1,3,'Brisset','Eric','Limoges','2008-03-01'),
+        (3,3,2,'Nameche','Nicole','Cognac','2008-03-01'),
+        (4,1,4,'Michelin','Marie-Pierre','Paris','2008-05-03'),
+        (5,1,NULL,'Caillierez','Gabriel','La Rochelle','2008-04-03'),
+        (6,2,1,'Santerre','Jean','St Junien','2008-01-03'), 
+        (7,2,2,'Pasqualini','Gabrielle','Bordeaux','2008-10-03'), 
+        (8,4,3,'Messager','Yves','St Victurnien','2008-04-03'), 
+        (9,3,NULL,'Delord','Thierry','Royan','2008-06-03');        
+
+INSERT INTO 
+        Participation(N_congressiste,N_activite,nbre_personne)
+VALUES (1,1,1),
+        (1,2,1),
+        (1,3,2),
+        (1,4,2),
+        (3,1,2),
+        (3,2,2),
+        (3,3,2),
+        (3,4,2),
+        (5,3,1),
+        (6,3,1),
+        (6,4,1),
+        (7,1,1),
+        (7,4,2),
+        (8,4,1);
+
+//1
+//a/
+SELECT nom_activite, date_activite, heure_activite
+FROM Activite;
+
+//b/
+SELECT DISTINCT adresse_congressiste
+FROM  Congressiste;
+
+//c/
+SELECT nom_organisme
+FROM Organisme_payeur
+WHERE adresse_organisme='Limoges';
+
+//d/
+SELECT nom_congressiste, prenom_congressiste
+FROM Congressiste
+WHERE N_organisme IS NULL;
+
+//e/
+SELECT nom_congressiste, prenom_congressiste
+FROM Congressiste
+WHERE N_hotel IN (2,3,4);
+
+//f/
+SELECT nom_activite
+FROM Activite
+WHERE date_activite IN ('2008-06-05','2008-06-07');
+
+//g/
+SELECT nom_congressiste, prenom_congressiste
+FROM Congressiste
+ORDER BY 1, 2;
+ 
+
+//h/
+SELECT nom_hotel
+FROM Hotel
+WHERE prix_participation IS BETWEEN 35 AND 52;
+
+//i/
+SELECT nom_congressiste, prenom_congressiste
+FROM Congressiste
+WHERE nom_congressiste LIKE 'M%';
+
+//j/
+SELECT nom_congressiste, prenom_congressiste
+FROM Congressiste
+WHERE nom_congressiste LIKE '%A%'
+OR nom_congressiste LIKE '%a%';
+
+//k/
+SELECT nom_congressiste, prenom_congressiste
+FROM Congressiste
+WHERE nom_congressiste LIKE '%t';
+
+//l/
+SELECT nom_hotel
+FROM Hotel
+WHERE prix_participation BETWEEN 35 AND 52
+AND prix_supplementaire BETWEEN 20 AND 30;
+
+
+//m/
+SELECT nom_hotel, prix_participation+prix_supplementaire AS Total
+FROM Hotel;
+
+//n/
+SELECT COUNT(N_congressiste) AS 'Nombre de Congressistes'
+FROM Congressiste;
+
+//o/
+SELECT adresse_hotel, AVG(prix_participation) as avg_part, AVG(prix_supplementaire) as avg_suppl
+FROM Hotel
+GROUP BY 1;
+
+//p/
+SELECT COUNT(N_congressiste) AS Nombre_Congressiste, N_activite
+FROM Participation
+GROUP BY 2;
+
+//q/
+SELECT N_congressiste, avg_personnes
+FROM (
+        SELECT N_congressiste, COUNT(N_activite) AS nbre_activite, AVG(nbre_personne) AS avg_personnes
+        FROM Participation
+        GROUP BY N_congressiste) t
+WHERE nbre_activite>2;
+
+//r/
+SELECT c.N_congressiste, c.nom_congressiste, h.nom_hotel
+FROM Congressiste c JOIN Hotel h 
+ON c.N_hotel = h.N_hotel;
+
+//s/
+SELECT c.N_congressiste, c.nom_congressiste, op.nom_organisme, h.nom_hotel
+FROM Congressiste c JOIN Hotel h 
+ON c.N_hotel = h.N_hotel
+JOIN Organisme_payeur op
+ON c.N_organisme = op.N_organisme;
+
+//t/
+SELECT c.N_congressiste, c.nom_congressiste, h.nom_hotel
+FROM Congressiste c JOIN Hotel h 
+ON c.N_hotel = h.N_hotel
+ORDER BY 3,2;
+
+//u/
+
+SELECT c.N_congressiste, c.nom_congressiste, h.nom_hotel
+FROM Congressiste c JOIN Hotel h 
+ON c.N_hotel = h.N_hotel
+WHERE h.adresse_hotel = 'Biarritz'
+ORDER BY 3,2;
+
