@@ -31,10 +31,16 @@ on c.N_organisme = op.N_organisme
 where op.nom_organisme = "Microsoft";
 
 6.
-select c.Nom_congressiste, c.Prenom_congressiste, a.nom_activite, a.date_activite, count(a.N_activite) count_act
+select c.Nom_congressiste, c.Prenom_congressiste, a.nom_activite, a.date_activite
 from Congressiste c join Participation p 
 on c.N_congressiste = p.N_congressiste 
 join Activite a 
 on a.N_activite = p.N_activite
-where count_act = 2
-group by a.N_activite;
+where p.nbre_personne = 2;
+
+7. 
+select *
+from Congressiste c join Hotel h 
+on c.N_hotel = h.N_hotel 
+join Organisme_payeur op 
+on c.N_organisme = op.N_organisme;
